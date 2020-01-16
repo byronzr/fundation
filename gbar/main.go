@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	ChProgressBar = make(chan ProgressBarData, 1024)
+	maxChannell   = 1024
+	ChProgressBar = make(chan ProgressBarData, maxChannell)
 )
 
 type ProgressBarData struct {
@@ -128,7 +129,7 @@ func Status(name string) {
 		Probe: true,
 		Time:  true,
 	}
-	ChProgressBar <- d
+	send(d)
 }
 func Progress(name string, step int64) bool {
 	d := ProgressBarData{
@@ -136,10 +137,7 @@ func Progress(name string, step int64) bool {
 		Step: step,
 		Time: true,
 	}
-	ChProgressBar <- d
-	if step >= 100 {
-		return true
-	}
+	send(d)
 	return false
 }
 func Info(name, message string) {
@@ -147,6 +145,13 @@ func Info(name, message string) {
 		Name:  name,
 		Probe: true,
 		Msg:   message,
+	}
+	send(d)
+}
+
+func send(d ProgressBarData) {
+	if len(ChProgressBar) > maxChannell {
+		panic("maxChannel out range!")
 	}
 	ChProgressBar <- d
 }
