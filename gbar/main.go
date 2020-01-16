@@ -15,6 +15,7 @@ type ProgressBarData struct {
 	Name  string
 	Step  int64
 	Msg   string
+	Count bool
 	Probe bool
 	Time  bool
 }
@@ -25,6 +26,7 @@ func init() {
 		mline := make(map[string]int64, 0)
 		probe := make(map[string]int64, 0)
 		stimes := make(map[string]*time.Time)
+		counts := make(map[string]int64, 0)
 		fmt.Printf("\033[1J\033[0;0H\033[0m\n      // Fundation Gbar Panel //\n\n")
 		for d := range ChProgressBar {
 
@@ -38,7 +40,8 @@ func init() {
 				t = &nt
 			}
 
-			if d.Probe { // 探针模式
+			if d.Probe {
+				// 探针模式
 				cbar = []byte("..................................................")
 				if d.Msg == "" {
 					color = "\033[33m"
@@ -58,7 +61,14 @@ func init() {
 					cbar[n] = '+'
 					probe[d.Name] = n
 				}
-			} else { // 进度模式
+			} else if d.Count {
+				// 统计模式
+				color = "\033[36m"
+				info = fmt.Sprintf("%sCalc\033[0m", color)
+				counts[d.Name]++
+				cbar = []byte(fmt.Sprintf("% 50d", counts[d.Name]))
+			} else {
+				// 进度模式
 				color = "\033[32m"
 				info = fmt.Sprintf("%s%3d%%\033[0m", color, d.Step)
 				cbar = []byte("                                                  ")
@@ -145,6 +155,14 @@ func Info(name, message string) {
 		Name:  name,
 		Probe: true,
 		Msg:   message,
+	}
+	send(d)
+}
+func Count(name string) {
+	d := ProgressBarData{
+		Name:  name,
+		Time:  true,
+		Count: true,
 	}
 	send(d)
 }

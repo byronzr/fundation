@@ -35,6 +35,9 @@ func main() {
 				} else if i%3 == 0 {
 					// Example Status
 					gbar.Status(names[i])
+				} else if i%5 == 0 {
+					// Example Status
+					gbar.Count(names[i])
 				} else {
 					// Example progress
 					if gbar.Progress(names[i], step) {
