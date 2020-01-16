@@ -3,6 +3,8 @@ package main
 import (
 	"math/rand"
 	"time"
+
+	"github.com/byronzr/fundation/gbar"
 )
 
 func main() {
@@ -25,11 +27,12 @@ func main() {
 				step++
 				r := rand.New(rand.NewSource(time.Now().UnixNano()))
 				time.Sleep(time.Duration(r.Int63n(int64(time.Second))))
-				if i%2 == 1 {
-					//Status(names[i])
-					Info(names[i], ".....")
+				if i%2 == 0 {
+					gbar.Info(names[i], ".....")
+				} else if i%3 == 0 {
+					gbar.Status(names[i])
 				} else {
-					if Progress(names[i], step) {
+					if gbar.Progress(names[i], step) {
 						return
 					}
 				}

@@ -24,7 +24,7 @@ func init() {
 		mline := make(map[string]int64, 0)
 		probe := make(map[string]int64, 0)
 		stimes := make(map[string]*time.Time)
-		fmt.Printf("\033[1J\033[0;0H\033[0m\n      // STATUS PANEL INFO //\n\n")
+		fmt.Printf("\033[1J\033[0;0H\033[0m\n      // Fundation Gbar Panel //\n\n")
 		for d := range ChProgressBar {
 
 			var cbar []byte
@@ -149,38 +149,3 @@ func Info(name, message string) {
 	}
 	ChProgressBar <- d
 }
-
-// func main() {
-// 	names := []string{
-// 		"MySQL Write",
-// 		"MySQL Read",
-// 		"Redis Write",
-// 		"Redis Read",
-// 		"Channal Push",
-// 		"File I/O",
-// 		"Logger Write",
-// 		"HTTP GET",
-// 		"Database Align",
-// 		"Analysis Status",
-// 	}
-// 	for i := int64(1); i <= 9; i++ {
-// 		go func(i int64) {
-// 			step := int64(0)
-// 			for {
-// 				step++
-// 				r := rand.New(rand.NewSource(time.Now().UnixNano()))
-// 				time.Sleep(time.Duration(r.Int63n(int64(time.Second))))
-// 				if i%2 == 1 {
-// 					//Status(names[i])
-// 					Info(names[i], ".....")
-// 				} else {
-// 					if Progress(names[i], step) {
-// 						return
-// 					}
-// 				}
-// 			}
-// 		}(i)
-// 	}
-// 	s := make(chan int)
-// 	<-s
-// }
