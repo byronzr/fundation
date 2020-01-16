@@ -27,11 +27,11 @@ func init() {
 		probe := make(map[string]int64, 0)
 		stimes := make(map[string]*time.Time)
 		counts := make(map[string]int64, 0)
-		fmt.Printf("\033[1J\033[0;0H\033[0m\n      // Fundation Gbar Panel //\n\n")
+		fmt.Printf("\033[1J\033[0;0H\033[0m\n      // Fundation Gbar Panel string //\n\n")
 		for d := range ChProgressBar {
-
 			var cbar []byte
 			var info, color string
+			buf := make([]byte, 0)
 			step := int64(float64(d.Step) / 100 * 50)
 			t, ok := stimes[d.Name]
 			if !ok {
@@ -85,22 +85,22 @@ func init() {
 			x := int64(0)
 			if !ok {
 				mline[d.Name] = max
-				fmt.Printf(" %s", info)
+				buf = append(buf, []byte(fmt.Sprintf(" %s", info))...)
 				max++
 			} else {
 				x = max - line
-				fmt.Printf("\033[%dF %s", x, info)
+				buf = append(buf, []byte(fmt.Sprintf("\033[%dF %s", x, info))...)
 			}
 
 			// add bar
-			fmt.Printf(" [ %s ]", cbar)
+			buf = append(buf, []byte(fmt.Sprintf(" [ %s ]", cbar))...)
 
 			// add name
-			fmt.Printf(" %s%-20s", color, d.Name)
+			buf = append(buf, []byte(fmt.Sprintf(" %s%-20s", color, d.Name))...)
 
 			// add msg
 			if d.Msg != "" {
-				fmt.Printf(" %s%-20s", color, d.Msg)
+				buf = append(buf, []byte(fmt.Sprintf(" %s%-20s", color, d.Msg))...)
 			}
 
 			// add time
@@ -117,11 +117,12 @@ func init() {
 						break
 					}
 				}
-				fmt.Printf(" %.0f%s\033[K", c, u[i])
+				buf = append(buf, []byte(fmt.Sprintf(" %.0f%s\033[K", c, u[i]))...)
 			}
 
 			// end close ctrl
-			fmt.Printf("\033[0m\033[%dE", x)
+			buf = append(buf, []byte(fmt.Sprintf("\033[0m\033[%dE", x))...)
+			fmt.Print(string(buf))
 
 			// clear set
 			if d.Step >= 100 {
@@ -158,6 +159,7 @@ func Info(name, message string) {
 	}
 	send(d)
 }
+
 func Count(name string) {
 	d := ProgressBarData{
 		Name:  name,
