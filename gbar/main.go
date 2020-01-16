@@ -39,10 +39,11 @@ func init() {
 
 			if d.Probe { // 探针模式
 				cbar = []byte("..................................................")
-				color = "\033[33m"
 				if d.Msg == "" {
+					color = "\033[33m"
 					info = fmt.Sprintf("%s run\033[0m", color)
 				} else {
+					color = "\033[35m"
 					info = fmt.Sprintf("%s inf\033[0m", color)
 				}
 				if p, ok := probe[d.Name]; !ok {
