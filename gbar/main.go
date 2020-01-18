@@ -9,6 +9,12 @@ import (
 var (
 	maxChannell   = 1024
 	ChProgressBar = make(chan ProgressBarData, maxChannell)
+
+	max    = int64(1)
+	mline  = make(map[string]int64, 0)
+	probe  = make(map[string]int64, 0)
+	stimes = make(map[string]*time.Time)
+	counts = make(map[string]int64, 0)
 )
 
 type ProgressBarData struct {
@@ -21,13 +27,14 @@ type ProgressBarData struct {
 }
 
 func init() {
+
 	go func() {
 		max := int64(1)
 		mline := make(map[string]int64, 0)
 		probe := make(map[string]int64, 0)
 		stimes := make(map[string]*time.Time)
 		counts := make(map[string]int64, 0)
-		fmt.Printf("\033[1J\033[0;0H\033[0m\n      // Fundation Gbar Panel //\n\n")
+		fmt.Printf("\033[1J\033[0;0H\033[0m\n      // Fundation Gbar Paneld //\n\n")
 		for d := range ChProgressBar {
 
 			var cbar []byte
@@ -71,13 +78,18 @@ func init() {
 				// 进度模式
 				color = "\033[32m"
 				info = fmt.Sprintf("%s%3d%%\033[0m", color, d.Step)
-				cbar = []byte("                                                  ")
-				if step < 50 {
-					cbar[step] = '>'
-				}
+				// cbar = []byte("                                                  ")
+				// if step < 50 {
+				// 	cbar[step] = '>'
+				// }
+				// for i := int64(0); i < step; i++ {
+				// 	cbar[i] = '='
+				// }
+				cbar = []byte("\033[46m")
 				for i := int64(0); i < step; i++ {
-					cbar[i] = '='
+					cbar = append(cbar, ' ')
 				}
+				cbar = append(cbar, []byte("\033[0m")...)
 			}
 
 			// add status
