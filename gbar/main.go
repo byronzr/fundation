@@ -86,10 +86,14 @@ func init() {
 				// 	cbar[i] = '='
 				// }
 				cbar = []byte("\033[46m")
-				for i := int64(0); i < step; i++ {
-					cbar = append(cbar, ' ')
+				for i := int64(0); i < 50; i++ {
+					if i == step {
+						cbar = append(cbar, []byte("\033[0m")...)
+					} else {
+						cbar = append(cbar, ' ')
+					}
 				}
-				cbar = append(cbar, []byte("\033[0m")...)
+
 			}
 
 			// add status
