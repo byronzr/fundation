@@ -162,6 +162,9 @@ func Progress(name string, step int64) bool {
 		Step: step,
 		Time: true,
 	}
+	if step >= 50 {
+		return true
+	}
 	send(d)
 	return false
 }
