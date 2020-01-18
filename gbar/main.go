@@ -51,10 +51,10 @@ func init() {
 				cbar = []byte("..................................................")
 				if d.Msg == "" {
 					color = "\033[33m"
-					info = fmt.Sprintf("%s run\033[0m", color)
+					info = fmt.Sprintf("%s RUN\033[0m", color)
 				} else {
 					color = "\033[35m"
-					info = fmt.Sprintf("%s inf\033[0m", color)
+					info = fmt.Sprintf("%s INF\033[0m", color)
 				}
 				if p, ok := probe[d.Name]; !ok {
 					probe[d.Name] = 0
@@ -70,7 +70,7 @@ func init() {
 			} else if d.Count {
 				// 统计模式
 				color = "\033[36m"
-				info = fmt.Sprintf("%sCalc\033[0m", color)
+				info = fmt.Sprintf("%sCALC\033[0m", color)
 				counts[d.Name]++
 				cbar = []byte(fmt.Sprintf("% 50d", counts[d.Name]))
 			} else {
@@ -162,7 +162,7 @@ func Progress(name string, step int64) bool {
 		Step: step,
 		Time: true,
 	}
-	if step >= 50 {
+	if step >= 100 {
 		return true
 	}
 	send(d)
