@@ -2,7 +2,6 @@ package gbar
 
 import (
 	"fmt"
-	"runtime"
 	"time"
 )
 
@@ -85,7 +84,7 @@ func init() {
 				// for i := int64(0); i < step; i++ {
 				// 	cbar[i] = '='
 				// }
-				cbar = []byte("\033[42m ")
+				cbar = []byte("\033[42m")
 				for i := int64(0); i < 50; i++ {
 					if i == step {
 						cbar = append(cbar, []byte("\033[0m ")...)
@@ -141,10 +140,10 @@ func init() {
 
 			// clear set
 			if d.Step >= 100 {
-				delete(mline, d.Name)
-				delete(probe, d.Name)
-				delete(stimes, d.Name)
-				runtime.GC()
+				// delete(mline, d.Name)
+				// delete(probe, d.Name)
+				// delete(stimes, d.Name)
+				// runtime.GC()
 			}
 		}
 	}()
