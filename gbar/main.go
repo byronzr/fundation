@@ -87,7 +87,7 @@ func init() {
 				cbar = []byte("\033[42m")
 				for i := int64(0); i < 50; i++ {
 					if i == step {
-						cbar = append(cbar, []byte("\033[0m ")...)
+						break
 					} else {
 						cbar = append(cbar, ' ')
 					}
