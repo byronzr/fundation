@@ -36,7 +36,7 @@ func init() {
 		fmt.Printf("\033[1J\033[0;0H\033[0m\n      // Fundation Gbar Paneld //\n\n")
 		for d := range ChProgressBar {
 
-			var cbar []byte
+			var cbar []rune
 			var info, color string
 			step := int64(float64(d.Step) / 100 * 50)
 			t, ok := stimes[d.Name]
@@ -48,7 +48,15 @@ func init() {
 
 			if d.Probe {
 				// 探针模式
-				cbar = []byte("..................................................")
+				// ──────────────────────────────────────────────────┬┴┰┸
+				// ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+				// ┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈
+				// ──────────────────────────────────────────────────
+				// ❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚
+				point := '┸'
+				cbar = []rune("──────────────────────────────────────────────────")
+				//cbar = []rune("┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈")
+				//cbar = []byte("..................................................")
 				if d.Msg == "" {
 					color = "\033[33m"
 					info = fmt.Sprintf("%s RUN\033[0m", color)
@@ -58,13 +66,15 @@ func init() {
 				}
 				if p, ok := probe[d.Name]; !ok {
 					probe[d.Name] = 0
-					cbar[0] = '+'
+					//cbar[0] = '+'
+					cbar[0] = point
 				} else {
 					n := int64(0)
 					if p < 49 {
 						n = p + 1
 					}
-					cbar[n] = '+'
+					//cbar[n] = '+'
+					cbar[n] = point
 					probe[d.Name] = n
 				}
 			} else if d.Count {
@@ -72,7 +82,7 @@ func init() {
 				color = "\033[36m"
 				info = fmt.Sprintf("%sCALC\033[0m", color)
 				counts[d.Name]++
-				cbar = []byte(fmt.Sprintf("% 50d", counts[d.Name]))
+				cbar = []rune(fmt.Sprintf("% 50d", counts[d.Name]))
 			} else {
 				// 进度模式
 				color = "\033[32m"
@@ -84,15 +94,19 @@ func init() {
 				// for i := int64(0); i < step; i++ {
 				// 	cbar[i] = '='
 				// }
-				cbar = []byte("\033[42m")
+				cbar = []rune("\033[32m")
 				for i := int64(0); i < 50; i++ {
 					if i == step+1 {
-						cbar = append(cbar, []byte("\033[0m ")...)
+						cbar = append(cbar, []rune("❚\033[0m")...)
 					} else {
-						cbar = append(cbar, ' ')
+						if i <= step {
+							cbar = append(cbar, '❚')
+						} else {
+							cbar = append(cbar, ' ')
+						}
 					}
 				}
-				cbar = append(cbar, []byte("\033[0m")...)
+				cbar = append(cbar, []rune("\033[0m")...)
 			}
 
 			// Add status
@@ -108,7 +122,7 @@ func init() {
 			}
 
 			// add bar
-			fmt.Printf(" [ %s ]", cbar)
+			fmt.Printf(" [ %s ]", string(cbar))
 
 			// add name
 			fmt.Printf(" %s%-20s", color, d.Name)
