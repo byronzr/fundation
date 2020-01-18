@@ -86,8 +86,8 @@ func init() {
 				// }
 				cbar = []byte("\033[42m")
 				for i := int64(0); i < 50; i++ {
-					if i == step {
-						break
+					if i == step+1 {
+						cbar = append(cbar, []byte("\033[0m ")...)
 					} else {
 						cbar = append(cbar, ' ')
 					}
@@ -95,7 +95,7 @@ func init() {
 				cbar = append(cbar, []byte("\033[0m")...)
 			}
 
-			// add status
+			// Add status
 			line, ok := mline[d.Name]
 			x := int64(0)
 			if !ok {
