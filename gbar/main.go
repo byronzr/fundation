@@ -63,12 +63,17 @@ func init() {
 					color = "\033[33m"
 					info = fmt.Sprintf("%s RUN\033[0m", color)
 
-				} else if d.Msg == "ERR" {
-					color = "\033[31m"
-					info = fmt.Sprintf("%s ERR\033[0m", color)
 				} else {
-					color = "\033[35m"
-					info = fmt.Sprintf("%s INF\033[0m", color)
+
+					if d.Name == "ERR" {
+						// ERR
+						color = "\033[31m"
+						info = fmt.Sprintf("%s ERR\033[0m", color)
+					} else {
+						// INF
+						color = "\033[35m"
+						info = fmt.Sprintf("%s INF\033[0m", color)
+					}
 				}
 				if p, ok := probe[d.Name]; !ok {
 					probe[d.Name] = 0
@@ -167,7 +172,7 @@ func init() {
 			}
 
 			// exit
-			if d.Msg == "ERR" {
+			if d.Name == "ERR" {
 				os.Exit(1)
 			}
 		}
