@@ -165,6 +165,11 @@ func init() {
 				// delete(stimes, d.Name)
 				// runtime.GC()
 			}
+
+			// exit
+			if d.Msg == "ERR" {
+				os.Exit(1)
+			}
 		}
 	}()
 }
@@ -217,7 +222,7 @@ func Err(msg string) {
 		Msg:  msg,
 	}
 	send(d)
-	os.Exit(1)
+
 }
 
 func send(d ProgressBarData) {
