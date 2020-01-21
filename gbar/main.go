@@ -2,6 +2,7 @@ package gbar
 
 import (
 	"fmt"
+	"os"
 	"time"
 )
 
@@ -57,9 +58,14 @@ func init() {
 				cbar = []rune("──────────────────────────────────────────────────")
 				//cbar = []rune("┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈")
 				//cbar = []byte("..................................................")
+				// RUN
 				if d.Msg == "" {
 					color = "\033[33m"
 					info = fmt.Sprintf("%s RUN\033[0m", color)
+
+				} else if d.Msg == "ERR" {
+					color = "\033[31m"
+					info = fmt.Sprintf("%s ERR\033[0m", color)
 				} else {
 					color = "\033[35m"
 					info = fmt.Sprintf("%s INF\033[0m", color)
@@ -162,6 +168,7 @@ func init() {
 		}
 	}()
 }
+
 func Status(name string) {
 	d := ProgressBarData{
 		Name:  name,
@@ -170,11 +177,13 @@ func Status(name string) {
 	}
 	send(d)
 }
-func Progress(name string, step int64) bool {
+
+func Progress(name string, step int64, msg string) bool {
 	d := ProgressBarData{
 		Name: name,
 		Step: step,
 		Time: true,
+		Msg:  msg,
 	}
 	if step > 100 {
 		return true
@@ -182,6 +191,7 @@ func Progress(name string, step int64) bool {
 	send(d)
 	return false
 }
+
 func Info(name, message string) {
 	d := ProgressBarData{
 		Name:  name,
@@ -190,6 +200,7 @@ func Info(name, message string) {
 	}
 	send(d)
 }
+
 func Count(name string) {
 	d := ProgressBarData{
 		Name:  name,
@@ -197,6 +208,16 @@ func Count(name string) {
 		Count: true,
 	}
 	send(d)
+}
+
+func Err(msg string) {
+	d := ProgressBarData{
+		Name: "ERR",
+		Time: true,
+		Msg:  msg,
+	}
+	send(d)
+	os.Exit(1)
 }
 
 func send(d ProgressBarData) {
