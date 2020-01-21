@@ -176,7 +176,7 @@ func Progress(name string, step int64) bool {
 		Step: step,
 		Time: true,
 	}
-	if step >= 100 {
+	if step > 100 {
 		return true
 	}
 	send(d)
