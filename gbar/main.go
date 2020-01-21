@@ -24,22 +24,33 @@ type ProgressBarData struct {
 	Count bool
 	Probe bool
 	Time  bool
+	Exit  bool
 }
 
 func init() {
 
 	go func() {
+		defer os.Exit(1)
 		max := int64(1)
 		mline := make(map[string]int64, 0)
 		probe := make(map[string]int64, 0)
 		stimes := make(map[string]*time.Time)
 		counts := make(map[string]int64, 0)
+		progress := make(map[string]int64, 0)
 		fmt.Printf("\033[1J\033[0;0H\033[0m\n      // Fundation Gbar Paneld //\n\n")
 		for d := range ChProgressBar {
 
 			var cbar []rune
 			var info, color string
-			step := int64(float64(d.Step) / 100 * 50)
+			var step int64
+			if d.Step > 0 {
+				step = int64(float64(d.Step) / 100 * 50)
+				progress[d.Name] = step
+			} else {
+				d.Exit = true
+				step = progress[d.Name] + 1
+				d.Step = step
+			}
 			t, ok := stimes[d.Name]
 			if !ok {
 				nt := time.Now()
@@ -56,24 +67,15 @@ func init() {
 				// ❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚❚
 				point := '┸'
 				cbar = []rune("──────────────────────────────────────────────────")
-				//cbar = []rune("┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈┈")
-				//cbar = []byte("..................................................")
 				// RUN
 				if d.Msg == "" {
 					color = "\033[33m"
 					info = fmt.Sprintf("%s RUN\033[0m", color)
 
 				} else {
-
-					if d.Name == "ERR" {
-						// ERR
-						color = "\033[31m"
-						info = fmt.Sprintf("%s ERR\033[0m", color)
-					} else {
-						// INF
-						color = "\033[35m"
-						info = fmt.Sprintf("%s INF\033[0m", color)
-					}
+					// INF
+					color = "\033[35m"
+					info = fmt.Sprintf("%s INF\033[0m", color)
 				}
 				if p, ok := probe[d.Name]; !ok {
 					probe[d.Name] = 0
@@ -96,7 +98,12 @@ func init() {
 				cbar = []rune(fmt.Sprintf("% 50d", counts[d.Name]))
 			} else {
 				// 进度模式
-				color = "\033[32m"
+				if d.Exit {
+					color = "\033[31m"
+				} else {
+					color = "\033[32m"
+				}
+
 				info = fmt.Sprintf("%s%3d%%\033[0m", color, d.Step)
 				// cbar = []byte("                                                  ")
 				// if step < 50 {
@@ -157,11 +164,16 @@ func init() {
 
 			// add msg
 			if d.Msg != "" {
-				fmt.Printf(" %s%-20s", color, d.Msg)
+				fmt.Printf("  : %s%-20s", color, d.Msg)
 			}
 
 			// end close ctrl
 			fmt.Printf("\033[0m\033[%dE", x)
+
+			// exit
+			if d.Exit {
+				return
+			}
 
 			// clear set
 			if d.Step >= 100 {
@@ -171,10 +183,6 @@ func init() {
 				// runtime.GC()
 			}
 
-			// exit
-			if d.Name == "ERR" {
-				os.Exit(1)
-			}
 		}
 	}()
 }
@@ -218,16 +226,6 @@ func Count(name string) {
 		Count: true,
 	}
 	send(d)
-}
-
-func Err(msg string) {
-	d := ProgressBarData{
-		Name: "ERR",
-		Time: true,
-		Msg:  msg,
-	}
-	send(d)
-
 }
 
 func send(d ProgressBarData) {
