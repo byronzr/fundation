@@ -133,11 +133,6 @@ func init() {
 			// add name
 			fmt.Printf(" %s%-20s", color, d.Name)
 
-			// add msg
-			if d.Msg != "" {
-				fmt.Printf(" %s%-20s", color, d.Msg)
-			}
-
 			// add time
 			if d.Time {
 				c := time.Since(*t).Seconds()
@@ -153,6 +148,11 @@ func init() {
 					}
 				}
 				fmt.Printf(" %.0f%s\033[K", c, u[i])
+			}
+
+			// add msg
+			if d.Msg != "" {
+				fmt.Printf(" %s%-20s", color, d.Msg)
 			}
 
 			// end close ctrl
