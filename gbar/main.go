@@ -3,14 +3,17 @@ package gbar
 import (
 	"fmt"
 	"os"
+	"strings"
+	"sync"
 	"time"
 )
 
 var (
 	maxChannell   = 1024
 	ChProgressBar = make(chan ProgressBarData, maxChannell)
+	WG            = sync.WaitGroup{}
 
-	max    = int64(1)
+	max    = 1
 	mline  = make(map[string]int64, 0)
 	probe  = make(map[string]int64, 0)
 	stimes = make(map[string]*time.Time)
@@ -19,42 +22,35 @@ var (
 
 type ProgressBarData struct {
 	Name  string
-	Step  int64
+	Step  int
 	Msg   string
 	Count bool
 	Probe bool
 	Time  bool
-	Exit  bool
 }
 
 func init() {
 
 	go func() {
-		defer os.Exit(1)
+		WG.Add(1)
 		max := int64(1)
 		mline := make(map[string]int64, 0)
 		probe := make(map[string]int64, 0)
 		stimes := make(map[string]*time.Time)
 		counts := make(map[string]int64, 0)
-		progress := make(map[string]int64, 0)
 		fmt.Printf("\033[1J\033[0;0H\033[0m\n      // Fundation Gbar Paneld //\n\n")
 		for d := range ChProgressBar {
 
-			var cbar []rune
+			name := strings.ToLower(d.Name)
+
+			var cbar, buf []rune
 			var info, color string
-			var step int64
-			if d.Step > 0 {
-				step = int64(float64(d.Step) / 100 * 50)
-				progress[d.Name] = step
-			} else {
-				d.Exit = true
-				step = progress[d.Name] + 1
-				d.Step = step
-			}
-			t, ok := stimes[d.Name]
+			var step int
+			step = int(float64(d.Step) / 100 * 50)
+			t, ok := stimes[name]
 			if !ok {
 				nt := time.Now()
-				stimes[d.Name] = &nt
+				stimes[name] = &nt
 				t = &nt
 			}
 
@@ -77,8 +73,8 @@ func init() {
 					color = "\033[35m"
 					info = fmt.Sprintf("%s INF\033[0m", color)
 				}
-				if p, ok := probe[d.Name]; !ok {
-					probe[d.Name] = 0
+				if p, ok := probe[name]; !ok {
+					probe[name] = 0
 					//cbar[0] = '+'
 					cbar[0] = point
 				} else {
@@ -88,32 +84,26 @@ func init() {
 					}
 					//cbar[n] = '+'
 					cbar[n] = point
-					probe[d.Name] = n
+					probe[name] = n
 				}
 			} else if d.Count {
 				// 统计模式
 				color = "\033[36m"
 				info = fmt.Sprintf("%sCALC\033[0m", color)
-				counts[d.Name]++
-				cbar = []rune(fmt.Sprintf("% 50d", counts[d.Name]))
+				counts[name]++
+				cbar = []rune(fmt.Sprintf("% 50d", counts[name]))
 			} else {
 				// 进度模式
-				if d.Exit {
+				if d.Step == 0 {
 					color = "\033[31m"
+					info = fmt.Sprintf("%s ERR\033[0m", color)
 				} else {
 					color = "\033[32m"
+					info = fmt.Sprintf("%s%3d%%\033[0m", color, d.Step)
 				}
 
-				info = fmt.Sprintf("%s%3d%%\033[0m", color, d.Step)
-				// cbar = []byte("                                                  ")
-				// if step < 50 {
-				// 	cbar[step] = '>'
-				// }
-				// for i := int64(0); i < step; i++ {
-				// 	cbar[i] = '='
-				// }
 				cbar = []rune("\033[32m")
-				for i := int64(0); i < 50; i++ {
+				for i := 0; i < 50; i++ {
 					if i == step+1 {
 						cbar = append(cbar, []rune("❚\033[0m")...)
 					} else {
@@ -128,22 +118,22 @@ func init() {
 			}
 
 			// Add status
-			line, ok := mline[d.Name]
+			line, ok := mline[name]
 			x := int64(0)
 			if !ok {
-				mline[d.Name] = max
-				fmt.Printf(" %s", info)
+				mline[name] = max
+				buf = []rune(fmt.Sprintf(" %s", info))
 				max++
 			} else {
 				x = max - line
-				fmt.Printf("\033[%dF %s", x, info)
+				buf = []rune(fmt.Sprintf("\033[%dF %s", x, info))
 			}
 
 			// add bar
-			fmt.Printf(" [ %s ]", string(cbar))
+			buf = append(buf, []rune(fmt.Sprintf(" [ %s ]", string(cbar)))...)
 
 			// add name
-			fmt.Printf(" %s%-20s", color, d.Name)
+			buf = append(buf, []rune(fmt.Sprintf(" %s%-20s", color, name))...)
 
 			// add time
 			if d.Time {
@@ -159,31 +149,30 @@ func init() {
 						break
 					}
 				}
-				fmt.Printf(" %.0f%s\033[K", c, u[i])
+				buf = append(buf, []rune(fmt.Sprintf(" %3.0f%s\033[K", c, u[i]))...)
 			}
 
 			// add msg
 			if d.Msg != "" {
-				fmt.Printf("  : %s%-20s", color, d.Msg)
+				buf = append(buf, []rune(fmt.Sprintf("  : %s%-20s", color, d.Msg))...)
 			}
 
 			// end close ctrl
-			fmt.Printf("\033[0m\033[%dE", x)
+			buf = append(buf, []rune(fmt.Sprintf("\033[%dE\033[0m", x))...)
 
-			// exit
-			if d.Exit {
-				return
-			}
+			os.Stdout.WriteString(string(buf))
 
 			// clear set
 			if d.Step >= 100 {
-				// delete(mline, d.Name)
-				// delete(probe, d.Name)
-				// delete(stimes, d.Name)
+				// delete(mline, name)
+				// delete(probe, name)
+				// delete(stimes, name)
 				// runtime.GC()
 			}
 
 		}
+		WG.Done()
+		os.Stdout.Sync()
 	}()
 }
 
@@ -196,7 +185,7 @@ func Status(name string) {
 	send(d)
 }
 
-func Progress(name string, step int64, msg string) bool {
+func Progress(name string, step int, msg string) bool {
 	d := ProgressBarData{
 		Name: name,
 		Step: step,
@@ -226,6 +215,12 @@ func Count(name string) {
 		Count: true,
 	}
 	send(d)
+}
+
+func Fatal() {
+	close(ChProgressBar)
+	WG.Wait()
+	os.Exit(0)
 }
 
 func send(d ProgressBarData) {

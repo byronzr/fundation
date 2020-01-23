@@ -17,3 +17,12 @@ func Dump(o ...interface{}) {
 	}
 	fmt.Println(string(buf))
 }
+
+func Find(ss []string, s string) int {
+	for idx, str := range ss {
+		if str == s {
+			return idx
+		}
+	}
+	return -1
+}
