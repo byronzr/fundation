@@ -6,7 +6,7 @@ import (
 )
 
 // Dump dump everything
-func Dump(o ...interface{}) {
+func DD(o ...interface{}) {
 	buf := make([]byte, 0)
 	for idx, s := range o {
 		out, err := json.MarshalIndent(s, "", "\t")
