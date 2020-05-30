@@ -1,13 +1,10 @@
-package fundational
+package base
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 	"runtime"
-	"strings"
 )
 
 func Inf(msg ...interface{}) {
